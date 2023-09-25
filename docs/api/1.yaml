@@ -1,0 +1,211 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "API Documentation for Request"
+paths:
+  /api/requests:
+    get:
+      summary: "Get Requests"
+      description: "Returns a list of all requests, with optional filters by status and created_at timestamp."
+      produces:
+        - "application/json"
+      parameters:
+        - name: status
+          in: query
+          description: "Filter by request status, active or resolved"
+          required: false
+          type: string
+          enum:
+            - Active
+            - Resolved
+        - name: created_at
+          in: query
+          description: "Filter by the timestamp of request creation"
+          required: false
+          type: string
+          format: date-time
+        - name: page
+          in: query
+          description: "The page number to display"
+          required: true
+          type: integer
+        - name: per_page
+          in: query
+          description: "The number of items per page to display"
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Request"
+        422:
+          description: "ValidationError"
+          schema:
+            $ref: "#/definitions/ValidationErrorIndex"
+    post:
+      summary: "Create Request"
+      description: "Create a new request"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Request
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/RequestInput"
+      responses:
+        201:
+          description: "Request created"
+          schema:
+            $ref: "#/definitions/Request"
+        422:
+          description: "ValidationError"
+          schema:
+            $ref: "#/definitions/ValidationErrorInput"
+    put:
+      summary: "Update Request"
+      description: "Updates an existing request's comment"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: Request
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/RequestUpdate"
+      responses:
+        200:
+          description: "Request updated"
+          schema:
+            $ref: "#/definitions/Request"
+        422:
+          description: "ValidationError"
+          schema:
+            $ref: "#/definitions/ValidationErrorUpdate"
+definitions:
+  Request:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: John
+      email:
+        type: string
+        example: John@gmail.com
+      comment:
+        type: string
+        example: SomeTestComment
+      status:
+        type: string
+        enum:
+          - Active
+          - Resolved
+      message:
+        type: string
+        example: SomeTestMessage
+  RequestInput:
+    type: object
+    required:
+      - name
+      - email
+      - message
+    properties:
+      name:
+        type: string
+        example: John
+      email:
+        type: string
+        example: John@gmail.com
+      message:
+        type: string
+        example: SomeTestMessage
+  RequestUpdate:
+    type: object
+    required:
+      - id
+      - comment
+    properties:
+      id:
+        type: integer
+      comment:
+        type: string
+        example: SomeTestCommentary
+  ValidationErrorIndex:
+    type: object
+    properties:
+      message:
+        type: string
+        example: "All validation errors"
+      errors:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: string
+        example:
+          status:
+            - "The selected status is invalid."
+          created_at:
+            - "The created at field must be a valid date."
+            - "The created at field must match the format Y-m-d."
+          page:
+            - "The page field is required."
+            - "The page field is must be an integer."
+          per_page:
+            - "The per_page field is required."
+            - "The per_page field is must be an integer."
+  ValidationErrorInput:
+    type: object
+    properties:
+      message:
+        type: string
+        example: "All validation errors"
+      errors:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: string
+        example:
+          name:
+            - "The name field is required."
+            - "The name field is must be a string."
+            - "The name field must be at least 2 characters."
+            - "The name field must not be greater than 50 characters."
+          email:
+            - "The email field is required."
+            - "The email field must be a valid email address."
+            - "The email field must not be greater than 50 characters."
+          message:
+            - "The message field is required."
+            - "The message field is must be a string."
+  ValidationErrorUpdate:
+    type: object
+    properties:
+      message:
+        type: string
+        example: "All validation errors"
+      errors:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: string
+        example:
+          id:
+            - "The id field is required."
+            - "The id field is must be an integer."
+          comment:
+            - "The comment field is required."
+            - "The comment field is must be a string."
+
